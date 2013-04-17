@@ -38,11 +38,11 @@ module Songkick
             Helpers.count(self, :access_token_hash => hash).zero?
           end
         end
-
+        
         def self.create_refresh_token(client)
           Songkick::OAuth2.generate_id do |refresh_token|
             hash = Songkick::OAuth2.hashify(refresh_token)
-            Helpers.count(client.authorizations, :refresh_token_hash => hash).zero?
+            client.authorizations.count(:conditions => {:refresh_token_hash => hash}).zero?
           end
         end
 
@@ -92,12 +92,19 @@ module Songkick
         end
 
         def exchange!
-          self.code          = nil
-          self.access_token  = self.class.create_access_token
-          self.refresh_token = nil
+          self.code            = nil
+          self.access_token    = self.class.create_access_token
+          self.refresh_token   = self.class.create_refresh_token(client) unless self.refresh_token_hash
           save!
         end
 
+        def refresh!(duration = 3600)
+          self.code            = nil
+          self.access_token    = self.class.create_access_token
+          self.expires_at      = Time.now + duration
+          save!
+        end
+        
         def expired?
           return false unless expires_at
           expires_at < Time.now

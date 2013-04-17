@@ -65,7 +65,11 @@ module Songkick
 
         def update_authorization
           return if not valid? or @already_updated
-          @authorization.exchange!
+          if @grant_type == 'refresh_token'
+            @authorization.refresh!
+          else
+            @authorization.exchange!
+          end
           @already_updated = true
         end
 
@@ -205,8 +209,8 @@ module Songkick
             @error = INVALID_GRANT
             @error_description = 'The access grant you supplied is invalid'
           end
-
-          if @authorization and @authorization.expired?
+          
+          if @authorization and @authorization.expired? and @grant_type != REFRESH_TOKEN
             @error = INVALID_GRANT
             @error_description = 'The access grant you supplied is invalid'
           end

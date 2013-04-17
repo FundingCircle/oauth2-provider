@@ -150,7 +150,6 @@ describe Songkick::OAuth2::Model::Authorization do
       authorization.exchange!
       authorization.should be_valid
       authorization.code.should be_nil
-      authorization.refresh_token.should be_nil
     end
   end
 
