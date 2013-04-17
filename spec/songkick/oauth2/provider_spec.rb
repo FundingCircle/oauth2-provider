@@ -459,7 +459,57 @@ describe Songkick::OAuth2::Provider do
       end
     end
   end
-  
+
+  describe "refresh access token request" do
+
+    @client = Factory(:client)
+    let(:query_params) { { 'client_id'     => @client.client_id,
+                           'client_secret' => @client.client_secret,
+                           'grant_type'    => 'refresh_token',
+                           'refresh_token' => 'working_refresh_token'
+                        } }
+
+    before do
+      @authorization = create_authorization(
+        :owner         => @owner,
+        :client        => @client,
+        :code          => nil,
+        :expires_at    => 3.hours.from_now,
+        :access_token  => 'working_access_token',
+        :refresh_token => 'working_refresh_token')
+
+      Songkick::OAuth2.stub(:random_string).and_return('new_access_token')
+    end
+
+    describe "when there is a valid refresh token" do
+
+      it "returns a new access token" do
+        response = post(query_params)
+        validate_json_response(response, 200,
+          'access_token'  => 'new_access_token',
+          'expires_in'    => 10800,
+        )
+      end
+
+      it "does not generate a new refresh token" do
+        response = post(query_params)
+        @authorization.reload
+        @authorization.refresh_token_hash.should == Songkick::OAuth2.hashify('working_refresh_token')
+      end
+    end
+
+    describe "when there is a invalid refresh token" do
+      before do
+        query_params.merge!(:refresh_token => 'invalid_refresh_token')
+      end
+
+      it "returns an error response" do
+        response = post(query_params)
+        response.code.to_i.should == 400
+      end
+    end
+  end
+
   describe "protected resource request" do
     before do
       @authorization = create_authorization(

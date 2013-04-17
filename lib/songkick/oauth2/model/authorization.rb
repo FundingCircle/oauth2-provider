@@ -39,10 +39,10 @@ module Songkick
           end
         end
         
-        def self.create_refresh_token
+        def self.create_refresh_token(client)
           Songkick::OAuth2.generate_id do |refresh_token|
             hash = Songkick::OAuth2.hashify(refresh_token)
-            count(:conditions => {:refresh_token_hash => hash}).zero?
+            client.authorizations.count(:conditions => {:refresh_token_hash => hash}).zero?
           end
         end
         
@@ -64,11 +64,11 @@ module Songkick
               instance.code ||= create_code(client)
             when TOKEN
               instance.access_token  ||= create_access_token
-              instance.refresh_token ||= create_refresh_token
+              instance.refresh_token ||= create_refresh_token(client)
             when CODE_AND_TOKEN
               instance.code = create_code(client)
               instance.access_token  ||= create_access_token
-              instance.refresh_token ||= create_refresh_token
+              instance.refresh_token ||= create_refresh_token(client)
           end
           
           if attributes[:duration]
@@ -92,9 +92,9 @@ module Songkick
         end
         
         def exchange!
-          self.code          = nil
-          self.access_token  = self.class.create_access_token
-          self.refresh_token = self.class.create_refresh_token
+          self.code            = nil
+          self.access_token    = self.class.create_access_token
+          self.refresh_token   = self.class.create_refresh_token(client) unless self.refresh_token_hash
           save!
         end
         
