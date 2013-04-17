@@ -390,7 +390,7 @@ describe Songkick::OAuth2::Provider do
         it "returns a successful response" do
           Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
           response = post_basic_auth(auth_params, query_params)
-          validate_json_response(response, 200, 'access_token' => 'random_access_token', 'expires_in' => 10800)
+          validate_json_response(response, 200, 'access_token' => 'random_access_token', 'expires_in' => 10800, 'refresh_token' => 'random_access_token')
         end
         
         describe "with a scope parameter" do
@@ -404,6 +404,7 @@ describe Songkick::OAuth2::Provider do
             validate_json_response(response, 200,
               'access_token'  => 'random_access_token',
               'scope'         => 'foo bar',
+              'refresh_token' => 'random_access_token',
               'expires_in'    => 10800
             )
           end
@@ -444,7 +445,8 @@ describe Songkick::OAuth2::Provider do
           response = post(params)
           validate_json_response(response, 200,
             'access_token' => 'random_access_token',
-            'expires_in'   => 10800
+            'expires_in'   => 10800,
+            'refresh_token' => 'random_access_token'
           )
         end
         
