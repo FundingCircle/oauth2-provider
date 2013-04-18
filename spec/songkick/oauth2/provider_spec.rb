@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'pry'
 
 describe Songkick::OAuth2::Provider do
   include RequestHelpers
@@ -470,12 +471,12 @@ describe Songkick::OAuth2::Provider do
                         } }
 
     before do
-      @authorization = create_authorization(
+      @expired_authorization = create_authorization(
         :owner         => @owner,
         :client        => @client,
         :code          => nil,
-        :expires_at    => 3.hours.from_now,
-        :access_token  => 'working_access_token',
+        :expires_at    => 1.hour.ago,
+        :access_token  => 'expired_access_token',
         :refresh_token => 'working_refresh_token')
 
       Songkick::OAuth2.stub(:random_string).and_return('new_access_token')
@@ -487,14 +488,14 @@ describe Songkick::OAuth2::Provider do
         response = post(query_params)
         validate_json_response(response, 200,
           'access_token'  => 'new_access_token',
-          'expires_in'    => 10800,
+          'expires_in'    => 3600,
         )
       end
 
       it "does not generate a new refresh token" do
         response = post(query_params)
-        @authorization.reload
-        @authorization.refresh_token_hash.should == Songkick::OAuth2.hashify('working_refresh_token')
+        @expired_authorization.reload
+        @expired_authorization.refresh_token_hash.should == Songkick::OAuth2.hashify('working_refresh_token')
       end
     end
 

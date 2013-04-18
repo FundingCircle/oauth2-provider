@@ -97,6 +97,13 @@ module Songkick
           self.refresh_token   = self.class.create_refresh_token(client) unless self.refresh_token_hash
           save!
         end
+
+        def refresh!(duration=3600)
+          self.code            = nil
+          self.access_token    = self.class.create_access_token
+          self.expires_at      = Time.now + duration
+          save!
+        end
         
         def expired?
           return false unless expires_at

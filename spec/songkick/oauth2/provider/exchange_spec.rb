@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'pry'
 
 describe Songkick::OAuth2::Provider::Exchange do
   before do
@@ -339,6 +340,13 @@ describe Songkick::OAuth2::Provider::Exchange do
     it_should_behave_like "validates required parameters"
     it_should_behave_like "valid token request"
     
+    describe "when access_token has expired" do
+      before do
+        @refresher.stub(:expired).and_return(true)
+      end
+      it_should_behave_like "valid token request"
+    end
+
     describe "with unknown refresh_token" do
       before { params['refresh_token'] = 'woops' }
       
