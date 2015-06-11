@@ -1,6 +1,6 @@
 spec = Gem::Specification.new do |s|
   s.name              = "songkick-oauth2-provider"
-  s.version           = "0.10.2"
+  s.version           = "0.10.3"
   s.summary           = "Simple OAuth 2.0 provider toolkit"
   s.author            = "James Coglan"
   s.email             = "james@songkick.com"
@@ -12,7 +12,8 @@ spec = Gem::Specification.new do |s|
   s.files             = %w(History.txt README.rdoc) + Dir.glob("{example,lib,spec}/**/*.{css,erb,rb,rdoc,ru}")
   s.require_paths     = ["lib"]
 
-  s.add_dependency("activerecord")
+  s.add_runtime_dependency("activerecord")
+
   s.add_dependency("bcrypt-ruby")
   s.add_dependency("json")
   s.add_dependency("rack")

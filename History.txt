@@ -1,3 +1,7 @@
+=== 0.10.3 / 2015-06-11
+
+* Fix duplicate dependency issue in gemspec using bundler > 1.10
+
 === 0.10.2 / 2012-10-31
 
 * Stop Model::Authorization#scope being set to an empty string and returned as
