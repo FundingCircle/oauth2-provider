@@ -10,7 +10,7 @@ class SongkickOauth2SchemaOriginalSchema < ActiveRecord::Migration
       t.string     :redirect_uri
     end
     add_index :oauth2_clients, [:client_id]
-    
+
     create_table :oauth2_authorizations do |t|
       t.timestamps
       t.string     :oauth2_resource_owner_type
@@ -25,12 +25,11 @@ class SongkickOauth2SchemaOriginalSchema < ActiveRecord::Migration
     add_index :oauth2_authorizations, [:client_id, :code]
     add_index :oauth2_authorizations, [:access_token_hash]
     add_index :oauth2_authorizations, [:client_id, :access_token_hash]
-    add_index :oauth2_authorizations, [:client_id, :refresh_token_hash]
+    add_index :oauth2_authorizations, [:client_id, :refresh_token_hash], name: 'index_oauth2_authorizations_client_id_and_refresh_token_hash'
   end
-  
+
   def self.down
     drop_table :oauth2_clients
     drop_table :oauth2_authorizations
   end
 end
-
