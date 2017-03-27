@@ -1,6 +1,11 @@
 dependencies:
   post:
     - bundle exec appraisal install
+
 test:
   override:
     - bundle exec appraisal rspec
+
+database:
+  override:
+    - echo 'This step has been intentionally skipped.'
