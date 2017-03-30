@@ -7,7 +7,11 @@ module TestApp
     include Songkick::OAuth2::Model::ClientOwner
     
     def self.[](name)
-      find_or_create_by_name(name)
+      if defined?(ActiveRecord::VERSION) && ActiveRecord::VERSION::MAJOR > 3
+        find_or_create_by(name: name)
+      else
+        find_or_create_by_name(name)
+      end
     end
   end
   
