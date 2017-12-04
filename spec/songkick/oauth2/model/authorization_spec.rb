@@ -151,6 +151,22 @@ describe Songkick::OAuth2::Model::Authorization do
       authorization.should be_valid
       authorization.code.should be_nil
     end
+
+    context 'when there is no refresh_token' do
+      it 'creates a new refresh_token' do
+        Songkick::OAuth2::Model::Authorization.should_receive(:create_refresh_token).and_return('a_new_refresh_token')
+        authorization.exchange!
+        authorization.refresh_token.should == 'a_new_refresh_token'
+      end
+    end
+
+    context 'when there is an existing refresh_token' do
+      it 'creates a new refresh_token' do
+        Songkick::OAuth2::Model::Authorization.should_receive(:create_refresh_token).and_return('a_new_refresh_token')
+        authorization.exchange!
+        authorization.refresh_token.should == 'a_new_refresh_token'
+      end
+    end
   end
   
   describe "#expired?" do
