@@ -1,6 +1,6 @@
 spec = Gem::Specification.new do |s|
   s.name              = "songkick-oauth2-provider"
-  s.version           = "0.10.2.1"
+  s.version           = "0.10.2.2"
   s.summary           = "Simple OAuth 2.0 provider toolkit"
   s.author            = "James Coglan"
   s.email             = "james@songkick.com"
@@ -13,7 +13,7 @@ spec = Gem::Specification.new do |s|
   s.require_paths     = ["lib"]
 
   s.add_dependency("activerecord")
-  s.add_dependency("bcrypt-ruby")
+  s.add_dependency("bcrypt")
   s.add_dependency("json")
   s.add_dependency("rack")
 end
