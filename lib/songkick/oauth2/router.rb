@@ -13,7 +13,12 @@ module Songkick
           request = request_from(env)
           params  = request.params
           auth    = auth_params(env)
-          
+
+          warn "env: #{env.inspect}"
+          warn "resource_owner: #{resource_owner.inspect}"
+          warn "params: #{params.inspect}"
+          warn "auth: #{auth.inspect}"
+
           if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID]
             error ||= Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
           end
