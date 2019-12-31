@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    songkick-oauth2-provider (0.10.2.2)
+    songkick-oauth2-provider (0.10.2.3)
       activerecord
       bcrypt
       json
@@ -26,7 +26,7 @@ GEM
       rake
       thor (>= 0.14.0)
     arel (8.0.0)
-    bcrypt (3.1.11)
+    bcrypt (3.1.13)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
     daemons (1.2.5)
@@ -36,7 +36,7 @@ GEM
       activesupport (>= 2.3.9)
     i18n (0.9.1)
       concurrent-ruby (~> 1.0)
-    json (2.1.0)
+    json (2.3.0)
     method_source (0.9.0)
     minitest (5.10.3)
     mustermann (1.0.1)
@@ -85,4 +85,4 @@ DEPENDENCIES
   thin
 
 BUNDLED WITH
-   1.16.0
+   1.17.3
