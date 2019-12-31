@@ -4,5 +4,4 @@ end
 
 appraise 'activerecord_4_2' do
   gem 'activerecord', '~> 4.2.0'
-  gem 'protected_attributes'
 end
