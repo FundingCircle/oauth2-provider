@@ -1,0 +1,136 @@
+version: 2.1
+
+commands:
+  cache_gems:
+    description: Cache Ruby gems
+    steps:
+      - save_cache:
+          key: gems-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+  install_gems:
+    description: Install Ruby gems
+    steps:
+      - run:
+          name: Install packages for gems
+          command: sudo apt-get install -y cmake
+      - run:
+          name: Install Ruby gems
+          command: bundle check --path=vendor/bundle || bundle install --binstubs --jobs 4 --deployment --retry 3 --without development production uat debug mac ruby-debug
+  login_to_artifactory:
+    description: Login to Artifactory
+    steps:
+      - run:
+          name: Login to Artifactory
+          command: |
+            mkdir -p ~/.gem
+            curl -u "$ARTIFACTORY_USER":"$ARTIFACTORY_PASSWORD" https://fundingcircle.jfrog.io/fundingcircle/api/gems/rubygems/api/v1/api_key.yaml > ~/.gem/credentials
+            chmod 600 ~/.gem/credentials
+  push_gem_to_artifactory:
+    description: Push gem to Artifactory
+    parameters:
+      repository:
+        type: string
+        default: "does not exist"
+    steps:
+      - run:
+          name: Push gem to Artifactory
+          command: |
+            package=$(ls -t1 songkick-oauth2-provider-*.gem | head -1)
+            gem push $package --host https://fundingcircle.jfrog.io/fundingcircle/api/gems/<< parameters.repository >>
+  restore_gems:
+    description: Restore Ruby gems from cache
+    steps:
+      - restore_cache:
+          keys:
+            - gems-{{ checksum "Gemfile.lock" }}
+            - gems-
+
+executors:
+  ruby:
+    docker:
+      - image: circleci/ruby:<< parameters.tag >>
+      - image: circleci/postgres:9.6-alpine-ram
+    environment:
+      RAILS_ENV: test
+    parameters:
+      tag:
+        type: string
+        default: latest
+    working_directory: ~/songkick-oauth2-provider
+
+jobs:
+  test:
+    executor:
+      name: ruby
+      tag: 2.4-node-browsers
+    steps:
+      - checkout
+      - restore_gems
+      - install_gems
+      - cache_gems
+      - run:
+          name: Create JUnit output directory
+          command: mkdir ~/rspec
+      - run:
+          name: Run tests
+          command: bundle exec rspec --format progress --require rspec_junit_formatter --format RspecJunitFormatter -o ~/rspec/rspec.xml
+      - store_test_results:
+          path: ~/rspec
+
+  publish_prerelease:
+    executor:
+      name: ruby
+      tag: 2.4-node-browsers
+    steps:
+      - checkout
+      - restore_gems
+      - install_gems
+      - cache_gems
+      - run:
+          name: Install gem-versioner
+          command: gem install gem-versioner
+      - run:
+          name: Build gem
+          command: |
+            PRE_RELEASE=$CIRCLE_BRANCH gem build songkick-oauth2-provider.gemspec
+      - login_to_artifactory
+      - push_gem_to_artifactory:
+          repository: "rubygems-pre-releases"
+
+  publish_release:
+    executor:
+      name: ruby
+      tag: 2.4-node-browsers
+    steps:
+      - checkout
+      - restore_gems
+      - install_gems
+      - cache_gems
+      - run:
+          name: Build gem
+          command: |
+            gem build songkick-oauth2-provider.gemspec
+      - login_to_artifactory
+      - push_gem_to_artifactory:
+          repository: "rubygems-local"
+
+workflows:
+  test-and-publish:
+    jobs:
+      - test:
+          context: org-global
+      - publish_release:
+          context: org-global
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - publish_prerelease:
+          context: org-global
+          requires:
+            - test
+          filters:
+            branches:
+              ignore: master

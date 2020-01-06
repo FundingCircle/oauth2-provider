@@ -9,5 +9,6 @@ gem 'pry'
 gem 'sinatra', '>= 1.3.0'
 gem 'thin'
 gem 'factory_girl', '~> 2.0'
+gem 'rspec_junit_formatter', require: false
 
 gemspec
