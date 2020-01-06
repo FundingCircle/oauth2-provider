@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pry'
 
 describe Songkick::OAuth2::Provider::Exchange do
   before do
