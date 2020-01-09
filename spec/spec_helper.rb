@@ -2,30 +2,21 @@ require 'rubygems'
 require 'bundler/setup'
 
 require 'active_record'
-require 'protected_attributes' if defined?(ActiveRecord::VERSION) && ActiveRecord::VERSION::MAJOR > 3
 require 'songkick/oauth2/provider'
 
-case ENV['DB']
-  when 'mysql'
-    ActiveRecord::Base.establish_connection(
-        :adapter  => 'mysql',
-        :host     => '127.0.0.1',
-        :username => 'root',
-        :database => 'oauth2_test')
-  when 'postgres'
-    ActiveRecord::Base.establish_connection(
-        :adapter  => 'postgresql',
-        :host     => '127.0.0.1',
-        :username => 'postgres',
-        :database => 'oauth2_test')
-  else
-    dbfile = File.expand_path('../test.sqlite3', __FILE__)
-    File.unlink(dbfile) if File.file?(dbfile)
-    
-    ActiveRecord::Base.establish_connection(
-        :adapter  => 'sqlite3',
-        :database => dbfile)
-end
+require 'pry'
+
+# inlined the DB drop/create/connect process here to avoid rewriting this whole implementation
+test_db_config = {
+  'adapter'  => 'postgresql',
+  'host'     => '127.0.0.1',
+  'username' => 'postgres',
+  'database' => 'oauth2_test'
+}
+tasks = ActiveRecord::Tasks::PostgreSQLDatabaseTasks.new(test_db_config)
+tasks.drop
+tasks.create
+ActiveRecord::Base.establish_connection(test_db_config)
 
 require 'logger'
 ActiveRecord::Base.logger = Logger.new(STDERR)
@@ -61,12 +52,12 @@ RSpec.configure do |config|
     time = Time.now
     Time.stub(:now).and_return time
   end
-  
+
   config.after do
     [ Songkick::OAuth2::Model::Client,
       Songkick::OAuth2::Model::Authorization,
       TestApp::User
-      
+
     ].each { |k| k.delete_all }
   end
 end
