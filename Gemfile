@@ -6,7 +6,7 @@ gem 'pry'
 gem 'sinatra', '>= 1.3.0'
 gem 'thin'
 gem 'factory_girl', '~> 2.0'
-gem "activerecord", "~> 5.2.0"
+gem "activerecord", "~> 5.2.4"
 gem 'rspec_junit_formatter', require: false
 
 gemspec
